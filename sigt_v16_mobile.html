@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SIGT App v16.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Russo+One&family=Exo+2:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --s1: #0a0e14;
+            --A: #00d4ff;
+            --G: #00e676;
+            --R: #ff1744;
+            --tx: #b0c4d8;
+            --tx-br: #ffffff;
+            --grad: linear-gradient(135deg, #00d4ff 0%, #00e676 100%);
+            --r: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--tx);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Russo One', sans-serif;
+            font-size: 24px;
+            color: var(--A);
+            letter-spacing: 2px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--G);
+            box-shadow: 0 0 10px var(--G);
+        }
+
+        main {
+            flex: 1;
+            padding: 0 20px 40px;
+        }
+
+        .mobile-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--r);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        h3 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 12px;
+            color: var(--tx-br);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .input-alt {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 15px 5px;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-alt:focus {
+            border-color: var(--A);
+        }
+
+        .btn-mobile {
+            width: 100%;
+            height: 60px;
+            background: var(--grad);
+            border: none;
+            border-radius: 30px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 16px;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-mobile:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .mic-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .mic-btn.active {
+            background: var(--R);
+            color: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 23, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(255, 23, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 23, 68, 0);
+            }
+        }
+
+        .nav-bottom {
+            background: rgba(10, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            height: 70px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--tx);
+            font-size: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            text-decoration: none;
+        }
+
+        .nav-item.active {
+            color: var(--A);
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">SIGT <span style="font-size:12px; opacity:0.6">APP</span></div>
+        <div class="status-dot" id="netStatus"></div>
+    </header>
+
+    <main>
+        <div class="mobile-card">
+            <h3>📍 Salón y Ubicación</h3>
+            <input type="text" id="salon" class="input-alt" placeholder="SALÓN / CASINO">
+
+            <h3>📋 Referencia Ticket</h3>
+            <input type="text" id="ticket" class="input-alt" placeholder="# TICKET">
+
+            <h3>🛠️ Detalles de Trabajo</h3>
+            <div class="mic-btn" id="micBtn">🎤</div>
+            <textarea id="detalles" class="input-alt" style="height: 100px;"
+                placeholder="DESCRIBE LA INCIDENCIA..."></textarea>
+        </div>
+
+        <button class="btn-mobile" id="sendBtn">
+            <span>🚀</span> REGISTRAR CAMBIO
+        </button>
+    </main>
+
+    <nav class="nav-bottom">
+        <a href="#" class="nav-item active">
+            <span class="nav-icon">📝</span>
+            <span>NUEVO</span>
+        </a>
+        <a href="sigt_dashboard.html" class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>DASHBOARD</span>
+        </a>
+    </nav>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR9GGkO_-uYW47PXtnFxU7Dq-2shyaekTJAPqvLDSqcHiA4F8Is1xtslWNdDgtE-US/exec'; // URL del Apps Script
+
+        // Simulación básica de dictado por voz
+        const micBtn = document.getElementById('micBtn');
+        const detalles = document.getElementById('detalles');
+        let isListening = false;
+
+        micBtn.onclick = () => {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Voz no soportada en este navegador.");
+                return;
+            }
+
+            if (!isListening) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = "es-ES";
+                recognition.onstart = () => {
+                    isListening = true;
+                    micBtn.classList.add('active');
+                };
+                recognition.onresult = (e) => {
+                    detalles.value += e.results[0][0].transcript;
+                };
+                recognition.onend = () => {
+                    isListening = false;
+                    micBtn.classList.remove('active');
+                };
+                recognition.start();
+            }
+        };
+
+        // Envío de Datos
+        document.getElementById('sendBtn').onclick = async () => {
+            const btn = document.getElementById('sendBtn');
+            const data = {
+                ticket: document.getElementById('ticket').value,
+                salon: document.getElementById('salon').value,
+                detalles: document.getElementById('detalles').value,
+                tecnico: 'Mobile App User',
+                source: 'Mobile',
+                timestamp: new Date().toISOString()
+            };
+
+            if (!data.ticket || !data.salon) {
+                alert("Rellena Ticket y Salón.");
+                return;
+            }
+
+            btn.innerHTML = 'ENVIANDO...';
+            btn.style.opacity = '0.5';
+
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(data)
+                });
+                alert("✅ Registrado con éxito");
+                document.getElementById('ticket').value = '';
+                document.getElementById('salon').value = '';
+                document.getElementById('detalles').value = '';
+            } catch (e) {
+                alert("❌ Error: " + e.message);
+            } finally {
+                btn.innerHTML = '<span>🚀</span> REGISTRAR CAMBIO';
+                btn.style.opacity = '1';
+            }
+        };
+    </script>
+</body>
+
+</html>

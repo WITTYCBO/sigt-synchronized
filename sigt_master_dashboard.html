@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGT Master Dashboard · v17.0</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050811;
+            --surface: #0f1629;
+            --surface-alt: #161f38;
+            --border: #1e293b;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.4);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 10px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(249, 115, 22, 0.05) 0%, transparent 40%);
+        }
+
+        /* --- LOGIN SCREEN --- */
+        #login-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 8, 17, 0.98);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        .login-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-field {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-field label {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .login-field input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .login-field input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-login:active {
+            transform: scale(0.98);
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .dashboard {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 24px;
+        }
+
+        .sidebar {
+            width: 260px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* --- HEADER & NAV --- */
+        nav {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 16px 24px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .user-info .name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .user-info .role {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* --- WIDGETS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card .val {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .stat-card .label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.accent {
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-card.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .stat-card.danger {
+            border-left: 4px solid var(--danger);
+        }
+
+        .stat-card.success {
+            border-left: 4px solid var(--success);
+        }
+
+        /* --- TABLES --- */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            text-align: left;
+            padding: 16px 24px;
+            color: var(--muted);
+            font-weight: 500;
+            background: var(--surface-alt);
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: var(--surface-alt);
+        }
+
+        /* --- BADGES --- */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-accent {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .tk-id {
+            font-family: 'Space Mono', monospace;
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        /* --- ADMIN PANEL --- */
+        #admin-panel {
+            display: none;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .config-item .meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .config-item .pin {
+            font-family: 'Space Mono', monospace;
+            color: var(--warning);
+            font-weight: 700;
+        }
+
+        /* --- UI HELPERS --- */
+        .hidden {
+            display: none;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .gap-10 {
+            gap: 10px;
+        }
+
+        .ptr {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- AUTH SCREEN -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <div class="login-logo">SIGT Master</div>
+            <p style="color: var(--muted); margin-bottom: 30px; font-size: 14px;">Inicia sesión para acceder al
+                ecosistema</p>
+
+            <div id="step-email">
+                <div class="login-field">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="input-email" placeholder="ejemplo@ac.com">
+                </div>
+                <button class="btn-login" onclick="checkEmail()">Siguiente →</button>
+            </div>
+
+            <div id="step-pin" class="hidden">
+                <div
+                    style="background: var(--surface-alt); padding: 10px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
+                    <span id="display-email" style="color: var(--accent)"></span>
+                    <button onclick="resetLogin()"
+                        style="background: none; border: none; color: var(--muted); cursor: pointer; text-decoration: underline; margin-left: 10px;">Cambiar</button>
+                </div>
+                <div class="login-field">
+                    <label id="pin-label">Introduce tu PIN de 6 dígitos</label>
+                    <input type="password" id="input-pin" maxlength="6"
+                        style="text-align: center; font-size: 24px; letter-spacing: 12px; font-family: 'Space Mono', monospace;">
+                </div>
+                <button class="btn-login" id="btn-auth-action" onclick="authLogin()">Entrar</button>
+            </div>
+
+            <p id="auth-error" style="color: var(--danger); font-size: 12px; margin-top: 16px; min-height: 18px;"></p>
+        </div>
+    </div>
+
+    <!-- DASHBOARD UI -->
+    <div class="dashboard" id="app">
+        <!-- TOP NAV -->
+        <nav style="width: 100%; grid-column: span 2;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <h1 style="font-size: 20px; font-weight: 800;">SIGT <span
+                        style="font-weight: 300; opacity: 0.5;">v17.0</span></h1>
+                <div style="display: flex; gap: 4px;">
+                    <button class="badge badge-accent ptr" onclick="showScreen('operations')">Operaciones</button>
+                    <button id="nav-admin" class="badge badge-warning ptr hidden"
+                        onclick="showScreen('admin')">Administración ROOT</button>
+                </div>
+            </div>
+            <div class="nav-user">
+                <div class="user-info" style="text-align: right;">
+                    <div class="name" id="user-name">...</div>
+                    <div class="role" id="user-role">...</div>
+                </div>
+                <div class="user-avatar" id="user-initials">U</div>
+                <button onclick="logout()"
+                    style="background: none; border: none; color: var(--danger); cursor: pointer; font-size: 20px; margin-left: 10px;"
+                    title="Cerrar Sesión">⏏</button>
+            </div>
+        </nav>
+
+        <!-- SCREEN: OPERATIONS -->
+        <div id="screen-operations" class="main-content" style="grid-column: span 2;">
+            <div class="stats-grid">
+                <div class="stat-card accent">
+                    <div class="val" id="stat-incidents">0</div>
+                    <div class="label">Incidencias Totales</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="val" id="stat-pending-parts">0</div>
+                    <div class="label">Repuestos Pendientes</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="val" id="stat-critical">0</div>
+                    <div class="label">Prioridad Crítica</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="val" id="stat-sync">Sync</div>
+                    <div class="label">Estado Backend</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">📦 Vista Maestra: Seguimiento Integrado</div>
+                    <div class="flex gap-10">
+                        <button class="badge badge-accent ptr" onclick="fetchData()">🔄 Actualizar</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="master-table">
+                        <thead>
+                            <tr>
+                                <th>Ticket Incidencia</th>
+                                <th>Salón / Sala</th>
+                                <th>Máquina</th>
+                                <th>Estado Repuesto</th>
+                                <th>Tracking Repuesto</th>
+                                <th>Urgencia</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="master-body">
+                            <!-- Data injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN: ADMIN -->
+        <div id="screen-admin" class="main-content hidden" style="grid-column: span 2;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">👥 Gestión de Usuarios y Accesos</div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
+                                <th>PIN Definido</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-list-body">
+                            <!-- User list injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsXknONdFMKu6gJ0YaWRELZS2SKYhIF_9aN-b73boExeFf_mJY2aIqWy61p16DQk2N/exec'; // DEBES PEGAR TU URL DESPUÉS DEL DESPLIEGUE
+
+        let currentUser = null;
+        let isFirstLogin = false;
+
+        // --- AUTH LOGIC ---
+
+        async function checkEmail() {
+            const email = document.getElementById('input-email').value.trim();
+            if (!email) return showError('Debes introducir un email');
+
+            showLoading(true);
+            try {
+                const res = await fetch(`${SCRIPT_URL}?op=login&email=${encodeURIComponent(email)}`).then(r => r.json());
+                if (res.success) {
+                    currentUser = { email };
+                    document.getElementById('display-email').textContent = email;
+                    document.getElementById('step-email').classList.add('hidden');
+                    document.getElementById('step-pin').classList.remove('hidden');
+
+                    if (res.firstLogin) {
+                        isFirstLogin = true;
+                        document.getElementById('pin-label').textContent = '⚠️ Primer acceso: Define tu PIN de 6 dígitos';
+                        document.getElementById('btn-auth-action').textContent = 'Configurar y Entrar';
+                    }
+                    showError('');
+                } else {
+                    showError(res.error || 'Usuario no registrado');
+                }
+            } catch (e) {
+                showError('Error al conectar con el servidor');
+            }
+            showLoading(false);
+        }
+
+        async function authLogin() {
+            const pin = document.getElementById('input-pin').value.trim();
+            if (pin.length !== 6) return showError('El PIN debe tener 6 dígitos');
+
+            showLoading(true);
+            if (isFirstLogin) {
+                // Registrar nuevo PIN
+                try {
+                    const res = await fetch(`${SCRIPT_URL}?op=setPin&email=${encodeURIComponent(currentUser.email)}&newPin=${pin}`).then(r => r.json());
+                    if (res.success) {
+                        isFirstLogin = false;
+                        authLogin(); // Re-login con el nuevo PIN
+                    } else {
+                        showError(res.error);
+                    }
+                } catch (e) { showError('Error al definir PIN'); }
+            } else {
+                // Login estándar
+                try {
+                    const res = await fetch(`${SCRIPT_URL}?op=login&email=${encodeURIComponent(currentUser.email)}&pin=${pin}`).then(r => r.json());
+                    if (res.success) {
+                        currentUser = res.user;
+                        currentUser.pin = pin;
+                        launchApp();
+                    } else {
+                        showError(res.error);
+                    }
+                } catch (e) { showError('Error de autenticación'); }
+            }
+            showLoading(false);
+        }
+
+        function launchApp() {
+            document.getElementById('login-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('login-overlay').classList.add('hidden');
+                document.getElementById('app').style.display = 'grid';
+            }, 300);
+
+            document.getElementById('user-name').textContent = currentUser.nombre;
+            document.getElementById('user-role').textContent = formatRole(currentUser.rol);
+            document.getElementById('user-initials').textContent = currentUser.nombre.charAt(0).toUpperCase();
+
+            if (currentUser.rol === 'encargado_sigt') {
+                document.getElementById('nav-admin').classList.remove('hidden');
+            }
+
+            fetchData();
+        }
+
+        async function fetchData() {
+            showSyncStatus('Sincronizando...', 'warning');
+            try {
+                const res = await fetch(`${SCRIPT_URL}?op=getData&email=${encodeURIComponent(currentUser.email)}&pin=${currentUser.pin}`).then(r => r.json());
+                if (res.success) {
+                    renderMasterTable(res.incidents, res.parts);
+                    updateStats(res.incidents, res.parts);
+                    showSyncStatus('Sincronizado', 'success');
+                    if (currentUser.rol === 'encargado_sigt') fetchUserList();
+                } else {
+                    showSyncStatus('Error: ' + res.error, 'danger');
+                }
+            } catch (e) {
+                console.error('Error fetching data', e);
+                showSyncStatus('Error de conexión', 'danger');
+            }
+        }
+
+        function showSyncStatus(msg, type) {
+            const el = document.getElementById('stat-sync');
+            el.textContent = msg;
+            const parent = el.closest('.stat-card');
+            parent.className = 'stat-card ' + type;
+        }
+
+        // Auto-refresh cada 60 segundos
+        setInterval(() => {
+            if (currentUser) fetchData();
+        }, 60000);
+
+        async function fetchUserList() {
+            try {
+                const res = await fetch(`${SCRIPT_URL}?op=getUserList&email=${encodeURIComponent(currentUser.email)}&pin=${currentUser.pin}`).then(r => r.json());
+                if (res.success) renderUserList(res.users);
+            } catch (e) { }
+        }
+
+        function renderMasterTable(incidents, parts) {
+            const body = document.getElementById('master-body');
+            body.innerHTML = '';
+
+            incidents.forEach(inc => {
+                // Buscar repuesto relacionado por Ticket ID
+                const part = parts.find(p => p.TicketSIGT === inc.ID);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><span class="tk-id">${inc.ID}</span></td>
+                    <td>${inc.Salon}</td>
+                    <td>${inc.Modelo} <br><small style="color:var(--muted)">S/N: ${inc.Serie}</small></td>
+                    <td>${part ? `<span class="badge badge-success">${part.Estado}</span>` : `<span class="badge badge-warning">Sin pedido</span>`}</td>
+                    <td>${part ? `<span class="tk-id" style="color:var(--muted)">${part.Tracking}</span>` : '---'}</td>
+                    <td>${getPriorityBadge(inc.Priority)}</td>
+                    <td style="font-size: 11px; color: var(--muted)">${new Date(inc.Timestamp).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function renderUserList(users) {
+            const body = document.getElementById('user-list-body');
+            body.innerHTML = '';
+            users.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.Nombre}</td>
+                    <td>${u.Email}</td>
+                    <td><span class="badge badge-accent">${formatRole(u.Rol)}</span></td>
+                    <td><span class="tk-id" style="color: var(--warning)">${u.PIN || '---'}</span></td>
+                    <td>${u.Activo === 'SI' ? '🟢 Activo' : '🔴 Inactivo'}</td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function updateStats(inc, parts) {
+            document.getElementById('stat-incidents').textContent = inc.length;
+            document.getElementById('stat-pending-parts').textContent = parts.filter(p => p.Estado === 'pendiente').length;
+            document.getElementById('stat-critical').textContent = inc.filter(i => i.Priority === 'S1').length;
+        }
+
+        // --- HELPERS ---
+
+        function showScreen(name) {
+            document.getElementById('screen-operations').classList.add('hidden');
+            document.getElementById('screen-admin').classList.add('hidden');
+            document.getElementById('screen-' + name).classList.remove('hidden');
+        }
+
+        function getPriorityBadge(p) {
+            if (p === 'S1') return '<span class="badge badge-danger">S1 - CRÍTICA</span>';
+            if (p === 'S2') return '<span class="badge badge-warning">S2 - ALTA</span>';
+            return '<span class="badge badge-accent">S3 - NORMAL</span>';
+        }
+
+        function formatRole(r) {
+            const map = { 'encargado_sigt': 'ROOT ADMIN', 'coordinador': 'COORDINADOR', 'director': 'DIRECTOR', 'invitado': 'INVITADO' };
+            return map[r] || r.toUpperCase();
+        }
+
+        function showError(msg) {
+            document.getElementById('auth-error').textContent = msg;
+        }
+
+        function showLoading(active) {
+            const btn = document.querySelector('.btn-login:not(.hidden)');
+            if (btn) btn.disabled = active;
+        }
+
+        function resetLogin() {
+            document.getElementById('step-pin').classList.add('hidden');
+            document.getElementById('step-email').classList.remove('hidden');
+            document.getElementById('input-pin').value = '';
+            showError('');
+        }
+
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+
+</html>

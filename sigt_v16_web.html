@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SIGT v16.0 · Web Sync</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Russo+One&family=Exo+2:wght@300;400;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --s1: #0a0e14;
+            --s2: #101620;
+            --A: #00d4ff;
+            --G: #00e676;
+            --R: #ff1744;
+            --tx: #b0c4d8;
+            --tx-br: #ffffff;
+            --grad: linear-gradient(135deg, #00d4ff 0%, #00e676 100%);
+            --glass: blur(12px) saturate(180%);
+            --r: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--tx);
+            font-family: 'Exo 2', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.1), transparent 70%);
+            z-index: -1;
+        }
+
+        header {
+            height: 60px;
+            background: rgba(16, 22, 32, 0.8);
+            backdrop-filter: var(--glass);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-family: 'Russo One', sans-serif;
+            font-size: 22px;
+            color: var(--A);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .version-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--A);
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .card {
+            background: var(--s2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--r);
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--tx-br);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--tx);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: #080b10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 15px;
+            color: #fff;
+            font-family: 'Exo 2', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--A);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Russo One', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--grad);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-dashboard {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--tx);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .status {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .success {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--G);
+            display: block;
+        }
+
+        .error {
+            background: rgba(255, 23, 68, 0.1);
+            color: var(--R);
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">SIGT <span class="version-badge">v16.0 SYNC</span></div>
+    </header>
+
+    <main>
+        <div class="card">
+            <h2><span style="color:var(--A)">⚡</span> Nueva Incidencia (Web)</h2>
+            <form id="sigtForm">
+                <div class="form-group">
+                    <label>Ticket #</label>
+                    <input type="text" id="ticket" placeholder="Ej: TIC-12345" required>
+                </div>
+                <div class="form-group">
+                    <label>Salón</label>
+                    <input type="text" id="salon" placeholder="Nombre del salón" required>
+                </div>
+                <div class="form-group">
+                    <label>Técnico</label>
+                    <input type="text" id="tecnico" placeholder="Tu nombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="categoria">
+                        <option value="Hardware">Hardware</option>
+                        <option value="Software">Software</option>
+                        <option value="Red">Red</option>
+                        <option value="Otro">Otro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Detalles</label>
+                    <textarea id="detalles" rows="3" placeholder="Describe el problema..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span>🚀</span> ENVIAR REPORTE
+                </button>
+            </form>
+            <div id="statusMsg" class="status"></div>
+        </div>
+
+        <a href="sigt_dashboard.html" class="btn btn-dashboard">
+            <span>📊</span> VER DASHBOARD CENTRAL
+        </a>
+    </main>
+
+    <script>
+        // CONFIGURACIÓN - EL USUARIO DEBE PEGAR AQUÍ EL WEB APP URL DEL SCRIPT
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR9GGkO_-uYW47PXtnFxU7Dq-2shyaekTJAPqvLDSqcHiA4F8Is1xtslWNdDgtE-US/exec'; // Se llenará tras desplegar el GS en Drive
+
+        document.getElementById('sigtForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const status = document.getElementById('statusMsg');
+
+            btn.disabled = true;
+            btn.innerHTML = 'ENVIANDO...';
+            status.style.display = 'none';
+
+            const payload = {
+                ticket: document.getElementById('ticket').value,
+                salon: document.getElementById('salon').value,
+                tecnico: document.getElementById('tecnico').value,
+                categoria: document.getElementById('categoria').value,
+                detalles: document.getElementById('detalles').value,
+                source: 'Web',
+                timestamp: new Date().toISOString()
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Apps Script requires no-cors for simple posts
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                status.className = 'status success';
+                status.innerHTML = '¡REPORTE ENVIADO CON ÉXITO!';
+                document.getElementById('sigtForm').reset();
+            } catch (err) {
+                status.className = 'status error';
+                status.innerHTML = 'ERROR AL ENVIAR: ' + err.message;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>🚀</span> ENVIAR REPORTE';
+            }
+        });
+    </script>
+</body>
+
+</html>

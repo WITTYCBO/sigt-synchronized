@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0f1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SIGT">
+    <title>SIGT · Incidencias Premium v17.0</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060b18;
+            --surface: #0d1426;
+            --surface2: #131d35;
+            --border: #1e2d4a;
+            --text: #e8edf8;
+            --muted: #6b7fa3;
+            --accent: #f97316;
+            --accent-dim: rgba(249, 115, 22, 0.15);
+            --s1: #ef4444;
+            --s2: #f97316;
+            --s3: #22c55e;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --grad: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #app {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 20px;
+            background: rgba(6, 11, 24, 0.9);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+        }
+
+        .step-indicator {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--border);
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* PASO 1: CATEGORÍAS */
+        .section-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .cat-card {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 12px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+        }
+
+        .cat-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+
+        .cat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cat-badge {
+            background: var(--accent);
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .cat-icon {
+            font-size: 24px;
+        }
+
+        .cat-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .cat-info p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.2;
+        }
+
+        /* FORMULARIO */
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text);
+            padding: 14px;
+            font-family: 'Syne', sans-serif;
+            outline: none;
+            width: 100%;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .alert-banner {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .alert-banner span {
+            font-size: 18px;
+        }
+
+        .alert-banner p {
+            font-size: 11px;
+            line-height: 1.4;
+            color: #fb923c;
+        }
+
+        .symptom-tag-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tag {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tag.active {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .choice-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .choice-btn {
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .choice-btn.active.no {
+            border-color: var(--s3);
+            color: var(--s3);
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        .choice-btn.active.yes {
+            border-color: var(--s1);
+            color: var(--s1);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* FOTOS */
+        .photo-upload-area {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .photo-slot {
+            aspect-ratio: 1;
+            background: var(--surface);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-photo {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 10px;
+        }
+
+        /* BOTONES */
+        .btn-footer {
+            margin-top: auto;
+            padding: 20px 0;
+            display: flex;
+            gap: 12px;
+        }
+
+        .main-btn {
+            flex: 1;
+            background: var(--grad);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            padding: 18px;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+
+        .main-btn:disabled {
+            opacity: 0.4;
+            box-shadow: none;
+        }
+
+        .back-btn {
+            padding: 18px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: var(--surface2);
+            border: 1.px solid var(--border);
+            color: var(--muted);
+            font-size: 9px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: fit-content;
+            margin-top: 4px;
+        }
+
+        .save-btn.active {
+            color: var(--s3);
+            border-color: var(--s3);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <header class="header">
+            <div class="logo-text"><span>SI</span>GT <span style="font-size:12px; opacity:0.5">MAESTRO</span></div>
+            <div class="step-indicator">
+                <div class="dot active" id="dot1"></div>
+                <div class="dot" id="dot2"></div>
+                <div class="dot" id="dot3"></div>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- PANTALLA 1: CATEGORÍAS -->
+            <div class="screen active" id="sec-1">
+                <div class="section-title">① Tipo de Avería</div>
+                <div class="category-grid" id="cat-container">
+                    <!-- JS inyectará las 14 categorías aquí -->
+                </div>
+            </div>
+
+            <!-- PANTALLA 2: DETALLES TÉCNICOS -->
+            <div class="screen" id="sec-2">
+                <div class="alert-banner">
+                    <span>⚠️</span>
+                    <p><b>S2 ALTA:</b> Respuesta preferente. El sistema priorizará asignación con técnico cualificado.
+                    </p>
+                </div>
+
+                <div class="field">
+                    <label>Salón / Sala *</label>
+                    <input type="text" id="ipt-salon" placeholder="Nombre del salón">
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label>Modelo Máquina *</label>
+                        <input type="text" id="ipt-modelo" placeholder="ej. Apex 4">
+                    </div>
+                    <div class="field">
+                        <label>Nº Serie *</label>
+                        <input type="text" id="ipt-serie" placeholder="ej. 12345">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Síntoma Principal *</label>
+                    <div class="symptom-tag-grid" id="symptom-tags">
+                        <div class="tag" onclick="toggleTag(this)">No enciende</div>
+                        <div class="tag" onclick="toggleTag(this)">Reinicios constantes</div>
+                        <div class="tag" onclick="toggleTag(this)">Olor a quemado</div>
+                        <div class="tag" onclick="toggleTag(this)">Humo o chispas</div>
+                        <div class="tag" onclick="toggleTag(this)">Se apaga sola</div>
+                        <div class="tag" onclick="toggleTag(this)">Fallo fuente</div>
+                    </div>
+                    <textarea id="ipt-sintoma" rows="4" style="margin-top:10px"
+                        placeholder="Describe el problema con el mayor detalle posible..."></textarea>
+                </div>
+
+                <div class="field">
+                    <label>Errores en Pantalla</label>
+                    <input type="text" id="ipt-errores" placeholder="ej. ERR-045, pantalla roja...">
+                </div>
+
+                <div class="field">
+                    <label>¿Afecta a la recaudación?</label>
+                    <div class="choice-row">
+                        <div class="choice-btn yes" id="rec-yes" onclick="setRec(true)">🔴 Sí, para</div>
+                        <div class="choice-btn no" id="rec-no" onclick="setRec(false)">🟢 No afecta</div>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>¿Cuándo empezó?</label>
+                    <select id="ipt-tiempo">
+                        <option value="Ahora mismo">Ahora mismo</option>
+                        <option value="Hace menos de 1h">Hace menos de 1 hora</option>
+                        <option value="Hoy por la mañana/tarde">Hoy por la mañana/tarde</option>
+                        <option value="Ayer">Ayer</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- PANTALLA 3: CONTACTO Y FOTOS -->
+            <div class="screen" id="sec-3">
+                <div class="field">
+                    <label>Fotografías (Máx. 4 fotos)</label>
+                    <div class="photo-upload-area" onclick="document.getElementById('file-ipt').click()">
+                        <div style="font-size:32px">📸</div>
+                        <p style="font-size:12px; margin-top:8px">Toca para añadir fotos</p>
+                        <p style="font-size:10px; color:var(--muted)">Máx. 4 imágenes</p>
+                    </div>
+                    <input type="file" id="file-ipt" accept="image/*" multiple style="display:none"
+                        onchange="handlePhotos(this)">
+                    <div class="photo-grid" id="photo-preview-grid"></div>
+                </div>
+
+                <div class="field">
+                    <label>Pasos ya probados</label>
+                    <input type="text" id="ipt-pasos" placeholder="ej. Reinicio, revisión billetero...">
+                </div>
+
+                <div class="field">
+                    <label>Tu Nombre / Empleado *</label>
+                    <input type="text" id="ipt-empleado" placeholder="Tu nombre">
+                </div>
+
+                <div class="field">
+                    <label>📱 Tu Teléfono Personal</label>
+                    <input type="tel" id="ipt-tel-pers" placeholder="600000000">
+                    <div class="save-btn" id="save-tel-pers" onclick="saveLocal('tel-pers')">💾 Guardar en este móvil
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>📞 Teléfono de la Sala</label>
+                    <input type="tel" id="ipt-tel-sala" placeholder="Fijo de la sala">
+                    <div class="save-btn" id="save-tel-sala" onclick="saveLocal('tel-sala')">💾 Guardar en este móvil
+                    </div>
+                </div>
+            </div>
+
+            <!-- FOOTER CON BOTONES -->
+            <div class="btn-footer">
+                <button class="back-btn" id="btn-back" style="display:none" onclick="goBack()">←</button>
+                <button class="main-btn" id="btn-next" onclick="goNext()">Continuar → Datos</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsXknONdFMKu6gJ0YaWRELZS2SKYhIF_9aN-b73boExeFf_mJY2aIqWy61p16DQk2N/exec';
+
+        const cats = [
+            { id: 'C01', t: 'Energía', i: '⚡', d: 'No enciende, reinicios, quemado' },
+            { id: 'C02', t: 'Pantalla', i: '🖥️', d: 'Negra, No Signal, colores, audio' },
+            { id: 'C03', t: 'Billetero', i: '💵', d: 'No acepta billetes, luz roja' },
+            { id: 'C04', t: 'Monedas', i: '🪙', d: 'No paga premios, atasco hopper' },
+            { id: 'C05', t: 'Pagos', i: '💰', d: 'Paga de más/menos, error lógico' },
+            { id: 'C06', t: 'Accesos', i: '🔑', d: 'Llave rota, cerradura, puerta' },
+            { id: 'C07', t: 'Red', i: '📡', d: 'Offline, sin conexión, SAS' },
+            { id: 'C08', t: 'Sensores', i: '🔢', d: 'Error conteo, atasco CIS' },
+            { id: 'C09', t: 'Software', i: '💻', d: 'Blue screen, error SO, bloqueo' },
+            { id: 'C10', t: 'Botones / Luz', i: '💡', d: 'LEDs, botonera, toppers' },
+            { id: 'C11', t: 'Efectivo', i: '🏦', d: 'Descuadre caja, bolsa rota' },
+            { id: 'C12', t: 'Daño Físico', i: '🛡️', d: 'Cristal roto, líquidos, golpes' },
+            { id: 'C13', t: 'Multiavería', i: '🚨', d: 'Varias máquinas, evento común' },
+            { id: 'C14', t: 'Preventivo', i: '🔧', d: 'Mantenimiento planificado' }
+        ];
+
+        let state = {
+            step: 1,
+            cat: null,
+            rec: null,
+            photos: []
+        };
+
+        // RENDER CATS
+        const container = document.getElementById('cat-container');
+        cats.forEach(c => {
+            const div = document.createElement('div');
+            div.className = 'cat-card';
+            div.onclick = () => selectCat(c);
+            div.innerHTML = `
+                <div class="cat-card-header">
+                    <span class="cat-badge">${c.id}</span>
+                    <span class="cat-icon">${c.i}</span>
+                </div>
+                <div class="cat-info">
+                    <h3>${c.t}</h3>
+                    <p>${c.d}</p>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+
+        function selectCat(c) {
+            state.cat = c;
+            document.querySelectorAll('.cat-card').forEach((el, i) => {
+                el.classList.toggle('selected', cats[i].id === c.id);
+            });
+            document.getElementById('btn-next').disabled = false;
+        }
+
+        function goNext() {
+            if (state.step === 1) {
+                state.step = 2;
+                renderStep();
+            } else if (state.step === 2) {
+                if (!validateStep2()) return;
+                state.step = 3;
+                renderStep();
+            } else {
+                submitTicket();
+            }
+        }
+
+        function goBack() {
+            state.step--;
+            renderStep();
+        }
+
+        function renderStep() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`sec-${state.step}`).classList.add('active');
+
+            document.querySelectorAll('.dot').forEach((d, i) => {
+                d.classList.toggle('active', i < state.step);
+            });
+
+            const btnNext = document.getElementById('btn-next');
+            const btnBack = document.getElementById('btn-back');
+
+            btnBack.style.display = state.step > 1 ? 'block' : 'none';
+
+            if (state.step === 1) {
+                btnNext.textContent = 'Continuar → Datos';
+                btnNext.disabled = !state.cat;
+            } else if (state.step === 2) {
+                btnNext.textContent = 'Continuar → Contacto';
+            } else {
+                btnNext.textContent = '⚡ Abrir Incidencia';
+            }
+        }
+
+        function toggleTag(el) {
+            el.classList.toggle('active');
+        }
+
+        function setRec(val) {
+            state.rec = val;
+            document.getElementById('rec-yes').classList.toggle('active', val === true);
+            document.getElementById('rec-no').classList.toggle('active', val === false);
+        }
+
+        function handlePhotos(ipt) {
+            const files = Array.from(ipt.files);
+            files.slice(0, 4 - state.photos.length).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    state.photos.push(e.target.result);
+                    renderPhotos();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderPhotos() {
+            const grid = document.getElementById('photo-preview-grid');
+            grid.innerHTML = '';
+            state.photos.forEach((p, i) => {
+                const div = document.createElement('div');
+                div.className = 'photo-slot';
+                div.innerHTML = `
+                    <img src="${p}">
+                    <button class="remove-photo" onclick="removePhoto(${i})">×</button>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function removePhoto(i) {
+            state.photos.splice(i, 1);
+            renderPhotos();
+        }
+
+        function saveLocal(key) {
+            const val = document.getElementById(`ipt-${key}`).value;
+            localStorage.setItem(key, val);
+            const btn = document.getElementById(`save-${key}`);
+            btn.classList.add('active');
+            btn.textContent = '✓ Guardado';
+        }
+
+        // LOAD LOCAL
+        window.onload = () => {
+            ['tel-pers', 'tel-sala'].forEach(key => {
+                const val = localStorage.getItem(key);
+                if (val) document.getElementById(`ipt-${key}`).value = val;
+            });
+            document.getElementById('btn-next').disabled = true;
+        };
+
+        function validateStep2() {
+            const req = ['ipt-salon', 'ipt-modelo', 'ipt-serie', 'ipt-sintoma'];
+            for (let id of req) {
+                if (!document.getElementById(id).value) {
+                    alert('Por favor, rellena los campos obligatorios (*)');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        async function submitTicket() {
+            const btn = document.getElementById('btn-next');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+
+            const activeTags = Array.from(document.querySelectorAll('.tag.active')).map(t => t.innerText);
+
+            const payload = {
+                op: 'registerIncident',
+                priority: state.cat.id === 'C13' ? 'S1' : (state.cat.id === 'C14' ? 'S3' : 'S2'),
+                category: state.cat.t,
+                codigoCat: state.cat.id,
+                salon: document.getElementById('ipt-salon').value,
+                modelo: document.getElementById('ipt-modelo').value,
+                serie: document.getElementById('ipt-serie').value,
+                sintoma: document.getElementById('ipt-sintoma').value,
+                sintomasRapidos: activeTags.join(', '),
+                errores: document.getElementById('ipt-errores').value,
+                recaudacion: state.rec === true ? 'Sí, para' : 'No afecta',
+                tiempoInicio: document.getElementById('ipt-tiempo').value,
+                pasosProbados: document.getElementById('ipt-pasos').value,
+                empleado: document.getElementById('ipt-empleado').value,
+                telPersonal: document.getElementById('ipt-tel-pers').value,
+                telSala: document.getElementById('ipt-tel-sala').value,
+                fotoUrl: state.photos.length > 0 ? state.photos[0] : '' // Enviamos la primera como ejemplo
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                }).then(r => r.json());
+
+                if (res.success) {
+                    alert('Incidencia registrada con éxito: ' + res.id);
+
+                    // Generar Resumen para WhatsApp
+                    const msg = `🚀 *NUEVA INCIDENCIA SIGT*\n\n` +
+                        `🎫 *Ticket:* ${res.id}\n` +
+                        `📂 *Categoría:* [${state.cat.id}] ${state.cat.t}\n` +
+                        `📍 *Salón:* ${payload.salon}\n` +
+                        `🎰 *Máquina:* ${payload.modelo} (S/N: ${payload.serie})\n` +
+                        `⚠️ *Sínitoma:* ${payload.sintoma}\n` +
+                        `✅ *Síntomas Rápidos:* ${payload.sintomasRapidos || 'N/A'}\n` +
+                        `💰 *Afecta Recaudación:* ${payload.recaudacion}\n` +
+                        `⏳ *Empezó:* ${payload.tiempoInicio}\n` +
+                        `👤 *Empleado:* ${payload.empleado}\n` +
+                        `📞 *Tel. Personal:* ${payload.telPersonal}\n` +
+                        `🏢 *Tel. Sala:* ${payload.telSala}`;
+
+                    const waUrl = `https://wa.me/34646365886?text=${encodeURIComponent(msg)}`;
+
+                    // Redirigir a WhatsApp
+                    window.location.href = waUrl;
+                }
+            } catch (e) {
+                alert('Error al sincronizar');
+                btn.disabled = false;
+                btn.textContent = '⚡ Reintentar';
+            }
+        }
+    </script>
+</body>
+
+</html>

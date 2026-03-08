@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>GESTLOG AC · Sincronizada v17.0</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --accent: #3b82f6;
+            --border: #334155;
+            --text: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Syne', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 800;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="margin-bottom: 30px;">
+        <h1 style="font-size: 24px;">GESTLOG <span style="color: var(--accent)">AC</span></h1>
+        <p style="font-size: 12px; opacity: 0.6;">Sincronizado con Sistema Maestro SIGT</p>
+    </div>
+
+    <div class="card">
+        <div class="label">Ticket SIGT Relacionado (Opcional)</div>
+        <input type="text" id="ticket_sigt_id" placeholder="Ej: TK-1741359200000">
+
+        <div class="label">Tipo de Solicitud</div>
+        <select id="tipo_solicitud">
+            <option value="Normal">Pedido Normal (Repu)</option>
+            <option value="RDR">Rotura de Recaudación (RDR)</option>
+        </select>
+
+        <div class="label">Urgencia</div>
+        <select id="urgencia">
+            <option value="Normal">Normal</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Crítica">Crítica</option>
+        </select>
+
+        <div class="label">Destino / Salón</div>
+        <input type="text" id="destino" placeholder="Nombre de la sala">
+
+        <div class="label">Detalles del Repuesto</div>
+        <textarea id="detalles" rows="4" placeholder="Ej: 1x Tolva Apex, 2x Botones..."></textarea>
+
+        <button class="btn" id="submit-btn" onclick="enviarSolicitud()">Enviar al Maestro</button>
+    </div>
+
+    <div id="result" style="display: none; text-align: center;">
+        <h2 style="color: #10b981;">✓ Enviado</h2>
+        <p id="tracking-id" style="font-family: 'Space Mono', monospace; font-weight: 700; margin-top: 10px;"></p>
+        <button class="btn" onclick="location.reload()"
+            style="margin-top: 20px; background: none; border: 1px solid var(--border);">Nueva Solicitud</button>
+    </div>
+
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsXknONdFMKu6gJ0YaWRELZS2SKYhIF_9aN-b73boExeFf_mJY2aIqWy61p16DQk2N/exec';
+
+        async function enviarSolicitud() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true; btn.textContent = 'Sincronizando...';
+
+            const payload = {
+                op: 'registerPartRequest',
+                ticket_sigt_id: document.getElementById('ticket_sigt_id').value,
+                tipo_solicitud: document.getElementById('tipo_solicitud').value,
+                urgencia: document.getElementById('urgencia').value,
+                destino_solicitud: document.getElementById('destino').value,
+                lineas: [document.getElementById('detalles').value], // Simplificado para v17 demo
+                solicitante_email: 'Técnico Logística'
+            };
+
+            try {
+                const res = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                }).then(r => r.json());
+
+                if (res.success) {
+                    document.querySelector('.card').style.display = 'none';
+                    document.getElementById('result').style.display = 'block';
+                    document.getElementById('tracking-id').textContent = 'Tracking: ' + res.tracking;
+                }
+            } catch (e) {
+                alert('Error al conectar con el Maestro');
+                btn.disabled = false; btn.textContent = 'Reintentar';
+            }
+        }
+    </script>
+</body>
+
+</html>
